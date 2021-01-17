@@ -1,0 +1,1 @@
+web: java -jar midnight-oil-backend/build/libs/midnight-oil-backend-0.0.1-SNAPSHOT.jar
