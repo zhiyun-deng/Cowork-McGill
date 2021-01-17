@@ -1,0 +1,3 @@
+task stage () {
+    dependsOn ':midnight-oil-backend:assemble'
+}
