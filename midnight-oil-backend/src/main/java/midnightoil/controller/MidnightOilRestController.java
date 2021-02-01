@@ -19,12 +19,15 @@ public class MidnightOilRestController {
 	@Autowired
 	private MidnightOilService service;
 	@PostMapping(value = { "/request", "/request/" })
-	public RequestDto createRequest(@RequestParam String date, @RequestParam String startTime, @RequestParam String token) throws IllegalArgumentException {
+	public String createRequest(@RequestParam String date, @RequestParam String startTime, @RequestParam String token) throws IllegalArgumentException {
 		Date startDateObj = Date.valueOf(date);
 		Time startTimeObj = Time.valueOf(startTime);
 		TimeSlot t = service.getTimeSlot(startDateObj,startTimeObj);
+		if (t==null) {
+			t = service.createTimeSlot(startDateObj, startTimeObj);			
+		}
 		Request r = service.createRequest(t);
-		return convertToDto(r);
+		return "Success! Your request ID is " + r.getId().toString();
 	}
 	@GetMapping(value = { "/token", "/token/" })
 	public String getToken() {

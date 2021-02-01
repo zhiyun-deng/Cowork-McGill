@@ -14,6 +14,8 @@ import org.springframework.web.reactive.function.client.WebClient;
 
 import midnightoil.model.*;
 import midnightoil.dao.*;
+import midnightoil.util.*;
+import reactor.core.publisher.Mono;
 
 @Service
 public class MidnightOilService {
@@ -52,13 +54,26 @@ public class MidnightOilService {
 	public TimeSlot getTimeSlot(Date startDate, Time startTime) {
 		return timeSlotRepo.findByStartTimeAndStartDate(startTime, startDate).get(0);
 	}
-	public String getToken() {
-		WebClient.UriSpec<WebClient.RequestBodySpec> request2 = webClient.post();
-		WebClient.RequestBodySpec uri1 = webClient
-				  .method(HttpMethod.POST)
-				  .uri("/resource");
-		return "";
+	@Transactional
+	public TimeSlot createTimeSlot(Date startDate, Time startTime) {
+		TimeSlot t = new TimeSlot();
+		t.setStartDate(startDate);
+		t.setStartTime(startTime);
+		timeSlotRepo.save(t);
+		return t;
 	}
+	
+	public boolean verifyToken(String token) {
+		Mono<ZoomUserInfo> mono = webClient.get()
+	            .uri("https://api.zoom.us/v2/users/me")
+	            .header("Authorization", "Bearer " + token)
+	            .retrieve()
+	            .bodyToMono(ZoomUserInfo.class);
+		if(mono.map(ZoomUserInfo->ZoomUserInfo.main.email).indexOf("gmail.com")!=-1) {
+			return true;
+		}
+	}
+	
 	private <T> List<T> toList(Iterable<T> iterable){
 		List<T> resultList = new ArrayList<T>();
 		for (T t : iterable) {
