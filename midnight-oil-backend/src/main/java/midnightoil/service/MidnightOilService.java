@@ -5,6 +5,7 @@ import java.sql.Time;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Optional;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpMethod;
@@ -25,7 +26,7 @@ public class MidnightOilService {
 	RequestRepository requestRepo;
 	@Autowired
 	TimeSlotRepository timeSlotRepo;
-	@Autowired
+	
 	WebClient webClient;
 	private static final String INSTALL_LINK = "https://zoom.us/oauth/authorize?response_type=code&client_id=CpVB04MsSzyrqxe6kYPzNw&redirect_uri=https%3A%2F%2Fmidnight-oil.herokuapp.com%2F";
 	/* What do I hope this app accomplish? */
@@ -38,18 +39,20 @@ public class MidnightOilService {
 		webClient = WebClient.create();
 	}
 	@Transactional
-	public Request createRequest(TimeSlot timeslot) {
-		
+	public Request createRequest(TimeSlot timeslot, String token) {
+		if(!verifyToken(token)) return null;
 		Request r = new Request();
 		Set<TimeSlot> set = new HashSet<TimeSlot>();
 		boolean success = set.add(timeslot);
 		r.setTimeSlot(set);
 		if(success) {
+			timeslot.setNumRequests(timeslot.getNumRequests()+1);
 			requestRepo.save(r);
 			return r;
 		}
 		return null;
 	}
+	
 	@Transactional
 	public TimeSlot getTimeSlot(Date startDate, Time startTime) {
 		return timeSlotRepo.findByStartTimeAndStartDate(startTime, startDate).get(0);
@@ -59,19 +62,41 @@ public class MidnightOilService {
 		TimeSlot t = new TimeSlot();
 		t.setStartDate(startDate);
 		t.setStartTime(startTime);
+		t.setNumPairs(0);
+		t.setNumRequests(0);
 		timeSlotRepo.save(t);
 		return t;
 	}
-	
+	@Transactional
+	public boolean hasUnpairedRequest(TimeSlot t) {
+		return (t.getNumRequests()>t.getNumPairs()*2);
+	}
 	public boolean verifyToken(String token) {
-		Mono<ZoomUserInfo> mono = webClient.get()
-	            .uri("https://api.zoom.us/v2/users/me")
-	            .header("Authorization", "Bearer " + token)
-	            .retrieve()
-	            .bodyToMono(ZoomUserInfo.class);
-		if(mono.map(ZoomUserInfo->ZoomUserInfo.main.email).indexOf("gmail.com")!=-1) {
-			return true;
+		try {
+			ZoomUserInfo info = webClient.get()
+		            .uri("https://api.zoom.us/v2/users/me")
+		            .header("Authorization", "Bearer " + token)
+		            .retrieve()
+		            .bodyToMono(ZoomUserInfo.class)
+		            .block();
+			if(info.email.indexOf("gmail.com")!=-1) {
+				return true;
+			}
+			return false;
 		}
+		catch(Exception e) {
+			return false;
+		}
+
+	}
+	public Request getRequest(Integer requestId) {
+		Optional<Request> r = requestRepo.findById(requestId);
+		if(!r.isPresent()) return null;
+		
+		return r.get();
+	}
+	public String getToken(String code) {
+		return null;
 	}
 	
 	private <T> List<T> toList(Iterable<T> iterable){

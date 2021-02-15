@@ -2,9 +2,9 @@ package midnightoil.model;
 
 import javax.persistence.Entity;
 import javax.persistence.Id;
+import javax.persistence.ManyToOne;
 import java.util.Set;
 import javax.persistence.ManyToMany;
-import javax.persistence.ManyToOne;
 
 @Entity
 public class Request{
@@ -25,15 +25,15 @@ public void setPaired(boolean value) {
 public boolean isPaired() {
     return this.paired;
 }
-   private Set<Pairing> pairing;
+   private Pairing pairing;
    
-   @ManyToMany(mappedBy="request" )
-   public Set<Pairing> getPairing() {
+   @ManyToOne
+   public Pairing getPairing() {
       return this.pairing;
    }
    
-   public void setPairing(Set<Pairing> pairings) {
-      this.pairing = pairings;
+   public void setPairing(Pairing pairing) {
+      this.pairing = pairing;
    }
    
    private Set<TimeSlot> timeSlot;

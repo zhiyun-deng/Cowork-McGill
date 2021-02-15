@@ -3,6 +3,7 @@ package midnightoil.model;
 import javax.persistence.Entity;
 import javax.persistence.Id;
 import java.util.Set;
+import javax.persistence.OneToMany;
 import javax.persistence.ManyToMany;
 import javax.persistence.ManyToOne;
 
@@ -27,7 +28,7 @@ public String getLink() {
 }
    private Set<Request> request;
    
-   @ManyToMany
+   @OneToMany(mappedBy="pairing" )
    public Set<Request> getRequest() {
       return this.request;
    }
