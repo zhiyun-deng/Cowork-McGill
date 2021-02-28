@@ -13,6 +13,7 @@ import midnightoil.model.Request;
 import midnightoil.model.TimeSlot;
 import midnightoil.service.MidnightOilService;
 import java.sql.*;
+import java.util.Set;
 
 /*ALL TIMES ARE UTC TIME*/
 @CrossOrigin(origins = "*")
@@ -23,12 +24,21 @@ public class MidnightOilRestController {
 	@PostMapping(value = { "/request", "/request/" })
 	public String createRequest(@RequestParam String date, @RequestParam String startTime, @RequestParam String token) throws IllegalArgumentException {
 		Date startDateObj = Date.valueOf(date);
+		System.out.println(1);
 		Time startTimeObj = Time.valueOf(startTime);
+		System.out.println(2);
 		TimeSlot t = service.getTimeSlot(startDateObj,startTimeObj);
+		System.out.println(3);
 		if (t==null) {
-			t = service.createTimeSlot(startDateObj, startTimeObj);			
+			t = service.createTimeSlot(startDateObj, startTimeObj);	
+			System.out.println(4);
 		}
+		System.out.println(5);
 		Request r = service.createRequest(t,token);
+		System.out.println(6);
+		if(r==null) {
+			return "token invalid";
+		}
 		return "Success! Your request ID is " + r.getId().toString();
 	}
 	@GetMapping(value = { "/token", "/token/" })
@@ -39,18 +49,23 @@ public class MidnightOilRestController {
 	public boolean testVerify(@RequestParam String token) {
 		return service.verifyToken(token);
 	}
+	@PostMapping(value = { "/schedule", "/schedule/" })
+	public String testVerify(@RequestParam String token, @RequestParam String start_time, @RequestParam Integer duration) {
+		return service.scheduleMeeting(token, start_time, duration);
+	}
 	@GetMapping(value = { "/getrequest", "/getrequest/" })
-	public RequestDto getRequestInfo(@RequestParam Integer id) {
+	public RequestDto getRequestInfo(@RequestParam String id) {
 		return convertToDto(service.getRequest(id));
 	}
 	private RequestDto convertToDto(Request r) {
 		if(r==null) {
 			return null;
 		}
-		TimeSlot[] times = (TimeSlot[])r.getTimeSlot().toArray();
-		TimeslotDto[] timesDto = new TimeslotDto[times.length];
-		for (int i = 0; i < times.length; i++) {
-			timesDto[i] = convertToDto(times[i]);
+		Set<TimeSlot> times = r.getTimeSlot();
+		TimeslotDto[] timesDto = new TimeslotDto[times.size()];
+		int i = 0;
+		for(TimeSlot t : times) {
+			timesDto[i] = convertToDto(t);
 		}
 		if(r.getPairing()==null) {
 			

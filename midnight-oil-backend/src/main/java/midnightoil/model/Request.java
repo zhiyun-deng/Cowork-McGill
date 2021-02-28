@@ -1,30 +1,27 @@
 package midnightoil.model;
 
 import javax.persistence.Entity;
+import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
 import javax.persistence.ManyToOne;
+
+import org.hibernate.annotations.GenericGenerator;
+
 import java.util.Set;
 import javax.persistence.ManyToMany;
 
 @Entity
 public class Request{
-   private Integer id;
-
-public void setId(Integer value) {
-    this.id = value;
-}
-@Id
-public Integer getId() {
-    return this.id;
-}
-private boolean paired = false;
-
-public void setPaired(boolean value) {
-    this.paired = value;
-}
-public boolean isPaired() {
-    return this.paired;
-}
+   private boolean paired = false;
+   
+   public void setPaired(boolean value) {
+      this.paired = value;
+   }
+   
+   public boolean isPaired() {
+      return this.paired;
+   }
+   
    private Pairing pairing;
    
    @ManyToOne
@@ -58,4 +55,24 @@ public boolean isPaired() {
       this.pairingManager = pairingManager;
    }
    
-   }
+   private String id;
+   public void setId (String value) 
+   {
+      this.id = value;
+      }
+   @Id
+   @GeneratedValue(generator="uuid2")
+   @GenericGenerator(name = "uuid2", strategy = "uuid2")
+   public String getId () 
+   {
+      return this.id;
+      }
+   private String link;
+
+public void setLink(String value) {
+    this.link = value;
+}
+public String getLink() {
+    return this.link;
+}
+}

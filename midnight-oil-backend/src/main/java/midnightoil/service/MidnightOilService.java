@@ -1,11 +1,14 @@
 package midnightoil.service;
 import java.sql.Date;
 import java.util.Set;
+import java.util.concurrent.TimeUnit;
 import java.sql.Time;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Optional;
+import java.util.Random;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpMethod;
@@ -29,6 +32,10 @@ public class MidnightOilService {
 	
 	WebClient webClient;
 	private static final String INSTALL_LINK = "https://zoom.us/oauth/authorize?response_type=code&client_id=CpVB04MsSzyrqxe6kYPzNw&redirect_uri=https%3A%2F%2Fmidnight-oil.herokuapp.com%2F";
+	private Date windowStartDate;// start of the current booking window
+	private Time windowStartTime;
+	private Date windowEndDate;
+	private Time windowEndTime;
 	/* What do I hope this app accomplish? */
 	//submit a request
 	//verify student
@@ -40,12 +47,19 @@ public class MidnightOilService {
 	}
 	@Transactional
 	public Request createRequest(TimeSlot timeslot, String token) {
-		if(!verifyToken(token)) return null;
+		String start_time = "";
+		start_time+=timeslot.getStartDate().toString();
+		start_time+="T";
+		start_time+=timeslot.getStartTime().toString();
+		Integer duration = 60;
+		String joinUrl = scheduleMeeting(token,start_time,duration);
+		if(joinUrl==null) return null;
 		Request r = new Request();
 		Set<TimeSlot> set = new HashSet<TimeSlot>();
 		boolean success = set.add(timeslot);
 		r.setTimeSlot(set);
 		if(success) {
+			r.setLink(joinUrl);
 			timeslot.setNumRequests(timeslot.getNumRequests()+1);
 			requestRepo.save(r);
 			return r;
@@ -55,6 +69,7 @@ public class MidnightOilService {
 	
 	@Transactional
 	public TimeSlot getTimeSlot(Date startDate, Time startTime) {
+		if(timeSlotRepo.findByStartTimeAndStartDate(startTime, startDate).isEmpty()) return null;
 		return timeSlotRepo.findByStartTimeAndStartDate(startTime, startDate).get(0);
 	}
 	@Transactional
@@ -64,6 +79,7 @@ public class MidnightOilService {
 		t.setStartTime(startTime);
 		t.setNumPairs(0);
 		t.setNumRequests(0);
+		t.setId(0);
 		timeSlotRepo.save(t);
 		return t;
 	}
@@ -71,6 +87,7 @@ public class MidnightOilService {
 	public boolean hasUnpairedRequest(TimeSlot t) {
 		return (t.getNumRequests()>t.getNumPairs()*2);
 	}
+	
 	public boolean verifyToken(String token) {
 		try {
 			ZoomUserInfo info = webClient.get()
@@ -89,7 +106,33 @@ public class MidnightOilService {
 		}
 
 	}
-	public Request getRequest(Integer requestId) {
+	public String scheduleMeeting(String token, String start_time, Integer duration) {
+		try {
+			MeetingRequest req = new MeetingRequest();
+			req.topic="Random Co-working Pairing";
+			req.timezone="America/Montreal";
+			req.type = 2;
+			req.start_time = start_time;
+			req.duration = duration;
+			MeetingResponse response = webClient.post()
+		            .uri("https://api.zoom.us/v2/users/me/meetings")
+		            .header("Content-Type","application/json")
+		            .header("Authorization", "Bearer " + token)
+		            .body(Mono.just(req),MeetingRequest.class)
+		            .retrieve()
+		            .bodyToMono(MeetingResponse.class)
+		            .block();
+			if(response.host_email.indexOf("gmail.com")!=-1) {
+				return response.join_url;
+			}
+			return null;
+		}
+		catch(Exception e) {
+			return null;
+		}
+
+	}
+	public Request getRequest(String requestId) {
 		Optional<Request> r = requestRepo.findById(requestId);
 		if(!r.isPresent()) return null;
 		
@@ -98,7 +141,56 @@ public class MidnightOilService {
 	public String getToken(String code) {
 		return null;
 	}
-	
+	public void pairAll() {
+		//for every timeslot, pair all requests
+		Long current = System.currentTimeMillis();
+		windowStartDate = new java.sql.Date(current);
+		windowStartTime = new java.sql.Time(current);
+		windowEndDate = new java.sql.Date(current+TimeUnit.DAYS.toMillis(5)); //the system will look at all timeslots between now 
+		windowEndTime = new java.sql.Time(current+TimeUnit.DAYS.toMillis(5)); // and five days from now
+		// use spring framework's default methods to find the desired timeslots
+		List<TimeSlot> times = timeSlotRepo.findByStartDateAfterAndStartTimeAfterAndEndDateBeforeAndEndTimeBefore(windowStartDate, windowStartTime, windowEndDate, windowEndTime);
+		List<Request> unpairedRequests = new ArrayList<Request>();
+		for (TimeSlot t : times) {
+			unpairedRequests.clear();
+			for(Request request: t.getRequest()) {
+				if(!request.isPaired()) {
+					unpairedRequests.add(request);
+				}
+			}
+			
+			Collections.shuffle(unpairedRequests);
+			while(unpairedRequests.size()>1) {
+				Request one = unpairedRequests.remove(unpairedRequests.size()-1);
+				Request two = unpairedRequests.remove(unpairedRequests.size()-1);
+				Pairing pair = new Pairing();
+				pair.setTimeSlot(one.getTimeSlot());
+				Set<Request> requests = new HashSet<Request>();
+				pair.setRequest(requests);
+				String linkToChoose = new Random().nextBoolean()?one.getLink():two.getLink();
+				pair.setLink(linkToChoose);
+				t.setNumPairs(t.getNumPairs()+1);
+				one.setPaired(true);
+				two.setPaired(true);
+				timeSlotRepo.save(t);
+				requestRepo.save(one);
+				requestRepo.save(two);
+				pairingRepo.save(pair);
+			}
+		}
+		
+	}
+	public void cleanup() {
+		Long current = System.currentTimeMillis();
+		Date cleanupStartDate = new java.sql.Date(current - TimeUnit.DAYS.toMillis(1));
+		Time cleanupStartTime = new java.sql.Time(current);
+		List<TimeSlot> outdated = timeSlotRepo.findByStartDateBeforeAndStartTimeBefore(cleanupStartDate, cleanupStartTime);
+		for(TimeSlot t :outdated) {
+			pairingRepo.deleteAll(t.getPairing());
+			requestRepo.deleteAll(t.getRequest());
+			timeSlotRepo.delete(t);
+		}
+	}
 	private <T> List<T> toList(Iterable<T> iterable){
 		List<T> resultList = new ArrayList<T>();
 		for (T t : iterable) {
