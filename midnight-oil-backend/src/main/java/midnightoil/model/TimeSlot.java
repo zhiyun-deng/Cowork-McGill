@@ -1,6 +1,9 @@
 package midnightoil.model;
 
 import javax.persistence.Entity;
+import javax.persistence.GeneratedValue;
+import javax.persistence.GenerationType;
+
 import java.sql.Time;
 import java.sql.Date;
 import javax.persistence.Id;
@@ -64,6 +67,7 @@ public void setId(Integer value) {
     this.id = value;
 }
 @Id
+@GeneratedValue(strategy=GenerationType.IDENTITY)
 public Integer getId() {
     return this.id;
 }

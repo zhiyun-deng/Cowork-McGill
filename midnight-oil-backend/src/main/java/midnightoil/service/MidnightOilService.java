@@ -55,22 +55,28 @@ public class MidnightOilService {
 	@Transactional
 	public Request createRequest(TimeSlot timeslot, String token) {
 		String start_time = "";
+		System.out.println(11);
 		start_time+=timeslot.getStartDate().toString();
 		start_time+="T";
 		start_time+=timeslot.getStartTime().toString();
 		Integer duration = 60;
 		String joinUrl = scheduleMeeting(token,start_time,duration);
+		System.out.println(22);
 		if(joinUrl==null) return null;
+		System.out.println(33);
 		Request r = new Request();
 		Set<TimeSlot> set = new HashSet<TimeSlot>();
 		boolean success = set.add(timeslot);
+		System.out.println(44);
 		r.setTimeSlot(set);
 		if(success) {
 			r.setLink(joinUrl);
 			timeslot.setNumRequests(timeslot.getNumRequests()+1);
 			requestRepo.save(r);
+			System.out.println(55);
 			return r;
 		}
+		System.out.println(66);
 		return null;
 	}
 	
@@ -84,9 +90,11 @@ public class MidnightOilService {
 		TimeSlot t = new TimeSlot();
 		t.setStartDate(startDate);
 		t.setStartTime(startTime);
+		t.setEndDate(startDate);
+		t.setEndTime(startTime);
 		t.setNumPairs(0);
 		t.setNumRequests(0);
-		t.setId(0);
+		
 		timeSlotRepo.save(t);
 		return t;
 	}
@@ -121,6 +129,7 @@ public class MidnightOilService {
 			req.type = 2;
 			req.start_time = start_time;
 			req.duration = duration;
+			System.out.println(token);
 			MeetingResponse response = webClient.post()
 		            .uri("https://api.zoom.us/v2/users/me/meetings")
 		            .header("Content-Type","application/json")
@@ -129,12 +138,17 @@ public class MidnightOilService {
 		            .retrieve()
 		            .bodyToMono(MeetingResponse.class)
 		            .block();
+			System.out.println(111);
 			if(response.host_email.indexOf("gmail.com")!=-1) {
+				System.out.println(222);
 				return response.join_url;
 			}
+			System.out.println(response.toString());
+			System.out.println(333);
 			return null;
 		}
 		catch(Exception e) {
+			e.printStackTrace();
 			return null;
 		}
 
