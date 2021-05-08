@@ -3,6 +3,8 @@ import java.sql.Date;
 import java.util.Set;
 import java.util.concurrent.TimeUnit;
 import java.sql.Time;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashSet;
@@ -36,6 +38,7 @@ public class MidnightOilService {
 	private Time windowStartTime;
 	private Date windowEndDate;
 	private Time windowEndTime;
+	private boolean initialized = false;
 	/* What do I hope this app accomplish? */
 	//submit a request
 	//verify student
@@ -44,6 +47,10 @@ public class MidnightOilService {
 	//display timeslot with outstanding request
 	public MidnightOilService() {
 		webClient = WebClient.create();
+	}
+	@Transactional
+	public List<TimeSlot> getAllTimeSlot() {
+		return toList(timeSlotRepo.findAll());
 	}
 	@Transactional
 	public Request createRequest(TimeSlot timeslot, String token) {
@@ -132,6 +139,7 @@ public class MidnightOilService {
 		}
 
 	}
+	@Transactional
 	public Request getRequest(String requestId) {
 		Optional<Request> r = requestRepo.findById(requestId);
 		if(!r.isPresent()) return null;
@@ -139,8 +147,30 @@ public class MidnightOilService {
 		return r.get();
 	}
 	public String getToken(String code) {
-		return null;
+		try {
+			//development credentials are included. Even if they were production credentials, the security risk would be 
+			//minimal since they are credentials of a PUBLIC client, whose behaviour is restricted by the developer Zoom account. 
+			//See https://stackoverflow.com/questions/19615372/client-secret-in-oauth-2-0
+			WebClient webClient = WebClient.create("https://zoom.us");
+			TokenResponse response = webClient.post()
+		            .uri(uriBuilder -> uriBuilder.path("/oauth/token")
+		                    .queryParam("grant_type", "authorization_code")
+		                    .queryParam("code", code)
+		                    .queryParam("redirect_uri","https://midnight-oil.herokuapp.com/")
+		                    .build())
+		            .header("Authorization","Basic Q3BWQjA0TXNTenlycXhlNmtZUHpOdzozb2F3Z2pCUTFhM3lLQUdXNktxQmM4a1FyZWRsMEpBWA==")
+		            .retrieve()
+		            .bodyToMono(TokenResponse.class)
+		            .block();
+			return response.access_token;
+		}
+		catch(Exception e) {
+			System.out.println(e.toString());
+			return null;
+		}
+		
 	}
+	@Transactional
 	public void pairAll() {
 		//for every timeslot, pair all requests
 		Long current = System.currentTimeMillis();
@@ -180,6 +210,7 @@ public class MidnightOilService {
 		}
 		
 	}
+	@Transactional
 	public void cleanup() {
 		Long current = System.currentTimeMillis();
 		Date cleanupStartDate = new java.sql.Date(current - TimeUnit.DAYS.toMillis(1));
@@ -190,6 +221,39 @@ public class MidnightOilService {
 			requestRepo.deleteAll(t.getRequest());
 			timeSlotRepo.delete(t);
 		}
+		
+		
+		
+		String startTimeString = cleanupStartTime.toString();
+		startTimeString = startTimeString.substring(0, 3)+"00:00";
+		String lastIntHourString = cleanupStartDate.toString()+" "+startTimeString;
+		SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+		java.util.Date date;
+		try {
+			date = sdf.parse(lastIntHourString);
+			long lastIntHourMilis = date.getTime();
+			if(!initialized) {
+				// create all the timeslots for five days ahead
+				for(int i = 0; i < 5*24*2; i++) {
+					Date dateToCreate = new java.sql.Date(lastIntHourMilis + TimeUnit.MINUTES.toMillis(i*30));
+					Time timeToCreate = new java.sql.Time(lastIntHourMilis + TimeUnit.MINUTES.toMillis(i*30));
+					createTimeSlot(dateToCreate,timeToCreate );
+				}
+				initialized = true;
+			}
+			else {
+				Date dateToCreate = new java.sql.Date(lastIntHourMilis + TimeUnit.MINUTES.toMillis(5*24*2*30));
+				Time timeToCreate = new java.sql.Time(lastIntHourMilis + TimeUnit.MINUTES.toMillis(5*24*2*30));
+			}
+
+		} catch (ParseException e) {
+			System.out.println("error in scheduled cleanup");
+			e.printStackTrace();
+		}
+			
+		
+		
+		
 	}
 	private <T> List<T> toList(Iterable<T> iterable){
 		List<T> resultList = new ArrayList<T>();

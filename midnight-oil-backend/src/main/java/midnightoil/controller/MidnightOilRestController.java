@@ -13,7 +13,10 @@ import midnightoil.model.Request;
 import midnightoil.model.TimeSlot;
 import midnightoil.service.MidnightOilService;
 import java.sql.*;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 /*ALL TIMES ARE UTC TIME*/
 @CrossOrigin(origins = "*")
@@ -44,6 +47,14 @@ public class MidnightOilRestController {
 	@GetMapping(value = { "/token", "/token/" })
 	public String getToken(@RequestParam String code) {
 		return service.getToken(code);
+	}
+	@GetMapping(value = { "/times", "/times/" })
+	public List<TimeslotDto> getAllTimeSlots() {
+		List<TimeslotDto> res = new ArrayList<TimeslotDto>();
+		for(TimeSlot t : service.getAllTimeSlot()) {
+			res.add(convertToDto(t));
+		}
+		return res;
 	}
 	@GetMapping(value = { "/verify", "/verify/" })
 	public boolean testVerify(@RequestParam String token) {
@@ -78,7 +89,7 @@ public class MidnightOilRestController {
 		}
 	}
 	private TimeslotDto convertToDto(TimeSlot t) {
-		if(t==null) return null;
+		if(t==null) throw new IllegalArgumentException("TimeSlot is null!");
 		return new TimeslotDto(t.getStartTime().toString(),t.getStartDate().toString(),t.getEndTime().toString(),t.getEndDate().toString());
 	}
 	
