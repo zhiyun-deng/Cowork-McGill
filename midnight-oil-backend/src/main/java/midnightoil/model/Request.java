@@ -1,12 +1,15 @@
 package midnightoil.model;
 
+import javax.persistence.CascadeType;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
 import javax.persistence.ManyToOne;
 
+
 import org.hibernate.annotations.GenericGenerator;
 
+import java.util.HashSet;
 import java.util.Set;
 import javax.persistence.ManyToMany;
 
@@ -33,9 +36,9 @@ public class Request{
       this.pairing = pairing;
    }
    
-   private Set<TimeSlot> timeSlot;
    
-   @ManyToMany(mappedBy="request" )
+   private Set<TimeSlot> timeSlot = new HashSet<>();
+   @ManyToMany( cascade = { CascadeType.ALL })
    public Set<TimeSlot> getTimeSlot() {
       return this.timeSlot;
    }

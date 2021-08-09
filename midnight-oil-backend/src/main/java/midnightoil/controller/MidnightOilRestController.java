@@ -19,7 +19,7 @@ import java.util.Set;
 import java.util.stream.Collectors;
 
 /*ALL TIMES ARE UTC TIME*/
-@CrossOrigin(origins = "*")
+@CrossOrigin
 @RestController
 public class MidnightOilRestController {
 	@Autowired
@@ -90,7 +90,7 @@ public class MidnightOilRestController {
 	}
 	private TimeslotDto convertToDto(TimeSlot t) {
 		if(t==null) throw new IllegalArgumentException("TimeSlot is null!");
-		return new TimeslotDto(t.getStartTime().toString(),t.getStartDate().toString(),t.getEndTime().toString(),t.getEndDate().toString());
+		return new TimeslotDto(t.getStartTime().toString(),t.getStartDate().toString(),t.getEndTime().toString(),t.getEndDate().toString(), t.getNumRequests(), t.getNumPairs());
 	}
 	
 	

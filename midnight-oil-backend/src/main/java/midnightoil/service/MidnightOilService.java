@@ -65,14 +65,17 @@ public class MidnightOilService {
 		if(joinUrl==null) return null;
 		System.out.println(33);
 		Request r = new Request();
+		TimeSlot retrievedTimeSlot = getTimeSlot(timeslot.getStartDate(), timeslot.getStartTime());
 		Set<TimeSlot> set = new HashSet<TimeSlot>();
-		boolean success = set.add(timeslot);
+		boolean success = set.add(retrievedTimeSlot);
 		System.out.println(44);
 		r.setTimeSlot(set);
 		if(success) {
 			r.setLink(joinUrl);
-			timeslot.setNumRequests(timeslot.getNumRequests()+1);
+			retrievedTimeSlot.setNumRequests(retrievedTimeSlot.getNumRequests()+1);
 			requestRepo.save(r);
+			timeSlotRepo.save(retrievedTimeSlot);
+			System.out.println(retrievedTimeSlot.getNumRequests());
 			System.out.println(55);
 			return r;
 		}

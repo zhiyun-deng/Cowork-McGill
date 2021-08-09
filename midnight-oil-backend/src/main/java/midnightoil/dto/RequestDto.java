@@ -30,6 +30,7 @@ public class RequestDto {
 		for(TimeslotDto time:times) {
 			result  = result + time.toString()+ "\n";
 		}
+		System.out.println("Result = " + result);
 		return result;
 	}
 	
