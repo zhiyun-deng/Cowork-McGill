@@ -4,7 +4,7 @@ var path = require('path')
 module.exports = {
   build: {
     env: require('./prod.env'),
-    host: 'midnight-oil-frontend.herokuapp.com',
+    host: 'cowork-mcgill.herokuapp.com',
     port: 443,
     backendHost: 'midnight-oil.herokuapp.com',
     backendPort: 443,
