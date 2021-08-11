@@ -6,7 +6,7 @@
       <span>{{msg}}</span>
     </p>
     <img src='https://placekitten.com/200/300'/>
-    <a href="https://zoom.us/oauth/authorize?response_type=code&client_id=CpVB04MsSzyrqxe6kYPzNw&redirect_uri=https%3A%2F%2Fmidnight-oil.herokuapp.com%2F">Install</a>
+    <a href="https://zoom.us/oauth/authorize?response_type=code&client_id=CpVB04MsSzyrqxe6kYPzNw&redirect_uri=https://cowork-mcgill.herokuapp.com/">Install</a>
     Request ID: 
      <input type="text" v-model="inputReqID">
      <button v-bind:disabled="!inputReqID" @click="searchReq(inputReqID)">Get Zoom Link</button>
