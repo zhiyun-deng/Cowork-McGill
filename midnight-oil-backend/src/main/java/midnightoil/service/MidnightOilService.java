@@ -173,7 +173,7 @@ public class MidnightOilService {
 		            .uri(uriBuilder -> uriBuilder.path("/oauth/token")
 		                    .queryParam("grant_type", "authorization_code")
 		                    .queryParam("code", code)
-		                    .queryParam("redirect_uri","https://midnight-oil.herokuapp.com/")
+		                    .queryParam("redirect_uri","https://cowork-mcgill.herokuapp.com/%23/app")
 		                    .build())
 		            .header("Authorization","Basic Q3BWQjA0TXNTenlycXhlNmtZUHpOdzozb2F3Z2pCUTFhM3lLQUdXNktxQmM4a1FyZWRsMEpBWA==")
 		            .retrieve()
