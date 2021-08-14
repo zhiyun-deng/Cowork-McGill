@@ -17,7 +17,7 @@ public class ScheduledTasks {
 		service.pairAll();
 	}
 	// should be less frequent than once an hour. 
-	@Scheduled(fixedRate=86400000)
+	@Scheduled(fixedRate=7200000)
 	public void scheduledCleanup() {
 		service.cleanup();
 	}

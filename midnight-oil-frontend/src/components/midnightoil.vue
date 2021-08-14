@@ -5,11 +5,18 @@
       <span style="color:red" v-if="error">{{errorMessage}}</span>
       <span>{{msg}}</span>
     </p>
-    <img src='https://placekitten.com/200/300'/>
-    <a href="https://zoom.us/oauth/authorize?response_type=code&client_id=CpVB04MsSzyrqxe6kYPzNw&redirect_uri=https://cowork-mcgill.herokuapp.com/%23/app">Install</a>
-    Request ID: 
-     <input type="text" v-model="inputReqID">
+    <div><img src='https://placekitten.com/200/300'/></div>
+    <br>
+  <div>
+    <a href="https://zoom.us/oauth/authorize?response_type=code&client_id=CpVB04MsSzyrqxe6kYPzNw&redirect_uri=https://cowork-mcgill.herokuapp.com/%23/app">Login to Zoom</a>
+  </div>
+  <br>
+  <div>
+    Search Request Status by Request ID: <input type="text" v-model="inputReqID" style="display: inline;">
      <button v-bind:disabled="!inputReqID" @click="searchReq(inputReqID)">Get Zoom Link</button>
+  <br><br>
+  </div>
+  <h2>Book a work session by submitting a request</h2><br>
     <div class="container" style="margin: auto; width: 50%; height: 100%; display: flex; flex-direction: row; justify-content: center;">
      
      <table>
@@ -32,8 +39,8 @@ import axios from 'axios'
 
 var config = require('../../config')
 
-var frontendUrl = 'https://' + config.build.host + ':' + config.build.port
-var backendUrl = 'https://' + config.build.backendHost + ':' + config.build.backendPort
+var frontendUrl = 'http://' + config.build.host + ':' + config.build.port
+var backendUrl = 'http://' + config.build.backendHost + ':' + config.build.backendPort
 
 var AXIOS = axios.create({
   baseURL: backendUrl,
@@ -151,5 +158,7 @@ export default {
 
 </script>
 <style>
-
+div{
+  text-align: center;
+}
 </style>

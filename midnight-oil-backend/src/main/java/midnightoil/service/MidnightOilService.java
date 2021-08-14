@@ -50,7 +50,7 @@ public class MidnightOilService {
 	}
 	@Transactional
 	public List<TimeSlot> getAllTimeSlot() {
-		return toList(timeSlotRepo.findAll());
+		return toList(timeSlotRepo.findAllByOrderByStartDateAscStartTimeAsc());
 	}
 	@Transactional
 	public Request createRequest(TimeSlot timeslot, String token) {
@@ -230,8 +230,8 @@ public class MidnightOilService {
 	@Transactional
 	public void cleanup() {
 		Long current = System.currentTimeMillis();
-		Date cleanupStartDate = new java.sql.Date(current - TimeUnit.DAYS.toMillis(1));
-		Time cleanupStartTime = new java.sql.Time(current);
+		Date cleanupStartDate = new java.sql.Date(current - TimeUnit.HOURS.toMillis(1));
+		Time cleanupStartTime = new java.sql.Time(current - TimeUnit.HOURS.toMillis(1));
 		List<TimeSlot> outdated = timeSlotRepo.findByStartDateBeforeAndStartTimeBefore(cleanupStartDate, cleanupStartTime);
 		for(TimeSlot t :outdated) {
 			pairingRepo.deleteAll(t.getPairing());
