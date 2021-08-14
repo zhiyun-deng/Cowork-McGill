@@ -8,7 +8,10 @@
     <div><img src='https://placekitten.com/200/300'/></div>
     <br>
   <div>
+  <!--
     <a href="https://zoom.us/oauth/authorize?response_type=code&client_id=CpVB04MsSzyrqxe6kYPzNw&redirect_uri=https://cowork-mcgill.herokuapp.com/%23/app">Login to Zoom</a>
+  -->
+    <a href="https://zoom.us/oauth/authorize?response_type=code&client_id=_NEnLdY1ReK8ApJ_IcGLw&redirect_uri=https%3A%2F%2Fcowork-mcgill.herokuapp.com%2F%23%2Fapp">Login to Zoom</a>
   </div>
   <br>
   <div>

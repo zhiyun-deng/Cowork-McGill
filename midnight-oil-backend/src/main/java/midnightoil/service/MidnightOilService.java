@@ -114,7 +114,10 @@ public class MidnightOilService {
 		            .retrieve()
 		            .bodyToMono(ZoomUserInfo.class)
 		            .block();
-			if(info.email.indexOf("gmail.com")!=-1) {
+			/*if(info.email.indexOf("gmail.com")!=-1) {
+				return true;
+			}*/
+			if(info.email.indexOf("mail.mcgill.ca")!=-1) {
 				return true;
 			}
 			return false;
@@ -142,7 +145,12 @@ public class MidnightOilService {
 		            .bodyToMono(MeetingResponse.class)
 		            .block();
 			System.out.println(111);
+			/*
 			if(response.host_email.indexOf("gmail.com")!=-1) {
+				System.out.println(222);
+				return response.join_url;
+			}*/
+			if(response.host_email.indexOf("mail.mcgill.ca")!=-1) {
 				System.out.println(222);
 				return response.join_url;
 			}
@@ -168,14 +176,16 @@ public class MidnightOilService {
 			//development credentials are included. Even if they were production credentials, the security risk would be 
 			//minimal since they are credentials of a PUBLIC client, whose behaviour is restricted by the developer Zoom account. 
 			//See https://stackoverflow.com/questions/19615372/client-secret-in-oauth-2-0
+			//EDIT: credentials are no longer included
 			WebClient webClient = WebClient.create("https://zoom.us");
+			System.out.println("!!!!!!!!!!!!!!!!!!!"+ System.getenv("ZOOM_CREDENTIAL"));
 			TokenResponse response = webClient.post()
 		            .uri(uriBuilder -> uriBuilder.path("/oauth/token")
 		                    .queryParam("grant_type", "authorization_code")
 		                    .queryParam("code", code)
 		                    .queryParam("redirect_uri","https://cowork-mcgill.herokuapp.com/#/app")
 		                    .build())
-		            .header("Authorization","Basic Q3BWQjA0TXNTenlycXhlNmtZUHpOdzozb2F3Z2pCUTFhM3lLQUdXNktxQmM4a1FyZWRsMEpBWA==")
+		            .header("Authorization","Basic " + System.getenv("ZOOM_CREDENTIAL")) // original is Q3BWQjA0TXNTenlycXhlNmtZUHpOdzozb2F3Z2pCUTFhM3lLQUdXNktxQmM4a1FyZWRsMEpBWA==
 		            .retrieve()
 		            .bodyToMono(TokenResponse.class)
 		            .block();
