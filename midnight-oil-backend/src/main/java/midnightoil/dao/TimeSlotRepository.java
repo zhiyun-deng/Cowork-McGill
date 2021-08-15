@@ -13,5 +13,6 @@ public interface TimeSlotRepository extends CrudRepository<TimeSlot, Integer>{
 	List<TimeSlot> findByStartDateBefore(Date date);
 	List<TimeSlot> findByStartDateAfter(Date date);
 	List<TimeSlot> findAllByOrderByStartDateAscStartTimeAsc();
+	List<TimeSlot> findByStartDateAfterOrStartTimeAfter(Date date, Time t);
 	List<TimeSlot> findByStartDateAfterAndStartTimeAfterAndEndDateBeforeAndEndTimeBefore(Date startDate, Time startTime, Date endDate, Time endTime);
 }

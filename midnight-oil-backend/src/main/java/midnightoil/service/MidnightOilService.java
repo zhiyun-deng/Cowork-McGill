@@ -73,6 +73,12 @@ public class MidnightOilService {
 		if(success) {
 			r.setLink(joinUrl);
 			retrievedTimeSlot.setNumRequests(retrievedTimeSlot.getNumRequests()+1);
+			Set<Request> requestSet = retrievedTimeSlot.getRequest();
+			if(requestSet==null) {
+				requestSet = new HashSet<Request>();
+			}
+			requestSet.add(r);
+			retrievedTimeSlot.setRequest(requestSet);
 			requestRepo.save(r);
 			timeSlotRepo.save(retrievedTimeSlot);
 			System.out.println(retrievedTimeSlot.getNumRequests());
@@ -206,7 +212,7 @@ public class MidnightOilService {
 		windowEndDate = new java.sql.Date(current+TimeUnit.DAYS.toMillis(5)); //the system will look at all timeslots between now 
 		windowEndTime = new java.sql.Time(current+TimeUnit.DAYS.toMillis(5)); // and five days from now
 		// use spring framework's default methods to find the desired timeslots
-		List<TimeSlot> times = timeSlotRepo.findByStartDateAfterAndStartTimeAfterAndEndDateBeforeAndEndTimeBefore(windowStartDate, windowStartTime, windowEndDate, windowEndTime);
+		List<TimeSlot> times = timeSlotRepo.findByStartDateAfterOrStartTimeAfter(windowStartDate, windowStartTime);
 		List<Request> unpairedRequests = new ArrayList<Request>();
 		for (TimeSlot t : times) {
 			unpairedRequests.clear();
@@ -221,7 +227,11 @@ public class MidnightOilService {
 				Request one = unpairedRequests.remove(unpairedRequests.size()-1);
 				Request two = unpairedRequests.remove(unpairedRequests.size()-1);
 				Pairing pair = new Pairing();
-				pair.setTimeSlot(one.getTimeSlot());
+				Set<TimeSlot> timeslots = new HashSet<TimeSlot>();
+				for(TimeSlot requestTimeSlot : one.getTimeSlot()) {
+					timeslots.add(requestTimeSlot);
+				}
+				pair.setTimeSlot(timeslots);
 				Set<Request> requests = new HashSet<Request>();
 				pair.setRequest(requests);
 				String linkToChoose = new Random().nextBoolean()?one.getLink():two.getLink();
@@ -229,6 +239,9 @@ public class MidnightOilService {
 				t.setNumPairs(t.getNumPairs()+1);
 				one.setPaired(true);
 				two.setPaired(true);
+				one.setPairing(pair);
+				two.setPairing(pair);
+				
 				timeSlotRepo.save(t);
 				requestRepo.save(one);
 				requestRepo.save(two);
@@ -242,14 +255,18 @@ public class MidnightOilService {
 		Long current = System.currentTimeMillis();
 		Date cleanupStartDate = new java.sql.Date(current - TimeUnit.HOURS.toMillis(1));
 		Time cleanupStartTime = new java.sql.Time(current - TimeUnit.HOURS.toMillis(1));
-		List<TimeSlot> outdated = timeSlotRepo.findByStartDateBeforeAndStartTimeBefore(cleanupStartDate, cleanupStartTime);
+		List<TimeSlot> outdated = timeSlotRepo.findByStartDateBeforeAndStartTimeBefore(cleanupStartDate, cleanupStartTime); 
 		for(TimeSlot t :outdated) {
 			pairingRepo.deleteAll(t.getPairing());
+			Set<Request> outdatedRequests = t.getRequest();
+			for (Request request:outdatedRequests) {
+				request.setTimeSlot(null);
+			}
+			t.setRequest(null);
 			requestRepo.deleteAll(t.getRequest());
 			timeSlotRepo.delete(t);
 		}
-		
-		
+				
 		
 		String startTimeString = cleanupStartTime.toString();
 		startTimeString = startTimeString.substring(0, 3)+"00:00";
@@ -277,6 +294,10 @@ public class MidnightOilService {
 			System.out.println("error in scheduled cleanup");
 			e.printStackTrace();
 		}
+		
+		date = new java.util.Date(current);
+		System.out.println("Cleanup time: " + sdf.format(date));
+		
 			
 		
 		
