@@ -255,7 +255,7 @@ public class MidnightOilService {
 		Long current = System.currentTimeMillis();
 		Date cleanupStartDate = new java.sql.Date(current - TimeUnit.HOURS.toMillis(1));
 		Time cleanupStartTime = new java.sql.Time(current - TimeUnit.HOURS.toMillis(1));
-		List<TimeSlot> outdated = timeSlotRepo.findByStartDateBeforeAndStartTimeBefore(cleanupStartDate, cleanupStartTime); 
+		List<TimeSlot> outdated = timeSlotRepo.findByStartDateEqualsAndStartTimeBeforeOrStartDateBefore(cleanupStartDate, cleanupStartTime,cleanupStartDate); 
 		for(TimeSlot t :outdated) {
 			pairingRepo.deleteAll(t.getPairing());
 			Set<Request> outdatedRequests = t.getRequest();

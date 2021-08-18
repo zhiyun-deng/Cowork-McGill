@@ -20,12 +20,20 @@
   <br><br>
   </div>
   <h2>Book a work session by submitting a request</h2><br>
-    <div class="container" style="margin: auto; width: 50%; height: 100%; display: flex; flex-direction: row; justify-content: center;">
+    <div class="container" style="margin: auto; width: 75%; height: 100%; display: flex; flex-direction: row; justify-content: center;">
      
-     <table>
+     <table class="table">
+      <thead>
+        <tr>
+          <th scope="col">Session Date</th>
+          <th scope="col">Session Time</th>
+          <th scope="col">Number of existing requests</th>
+          <th scope="col">--</th>
+        </tr>
+      </thead>
       <tr v-for="timeslot in times">
-        <td>{{timeslot.startTime}}</td>
         <td>{{timeslot.startDate}}</td>
+        <td>{{timeslot.startTime}}</td>
         <td>{{timeslot.numRequests}}</td>
         <td>
           <button v-on:click = "createRequest(timeslot)" type="button" class="btn btn-primary">Book</button>
