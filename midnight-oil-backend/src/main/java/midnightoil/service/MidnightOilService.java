@@ -263,7 +263,9 @@ public class MidnightOilService {
 				request.setTimeSlot(null);
 			}
 			t.setRequest(null);
-			requestRepo.deleteAll(t.getRequest());
+			if(t.getRequest()!=null) {
+				requestRepo.deleteAll(t.getRequest());
+			}
 			timeSlotRepo.delete(t);
 		}
 				
