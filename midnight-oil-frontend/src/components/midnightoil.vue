@@ -1,15 +1,18 @@
 <template>
 
   <div id="midnightoil" class="midnightoil">
-  <nav class="navbar navbar-light px-5" style="background-color: #FFE8E0;">
+  <nav class="navbar navbar-light px-5" style="background-color: #FFFFFF;">
   <!-- Navbar content -->
-  <a class="navbar-brand" href="#"><h2>Co-work McGill Random Pairing <i class="bi bi-people-fill"></i></h2></a>
-  <button type="button" class="btn btn-outline-danger ml-auto pr-auto" @click="showSessions()">
+  <a class="navbar-brand text-wrap mx-md-auto ml-lg-0" href="#/app"><h2>Co-work McGill Random Pairing <i class="bi bi-people-fill"></i></h2></a>
+  
+  <div class="col-sm-12 col-md-5 text-sm-center text-xl-right">
+  <button type="button" class="btn btn-outline-danger ml-auto mr-xl-4" @click="showSessions()">
   Remembered sessions
   </button>
   <button type="button" class="btn btn-outline-danger" data-toggle="modal" data-target="#exampleModal" @click="superProcessCookie()">
   How to use
   </button>
+  </div>
   
 </nav>
 
@@ -18,10 +21,10 @@
     <div class="modal-content">
       
       <div class="modal-body">
-        <b>Step 1: </b>Login to Zoom using mcgill account.<br>
+        <b>Step 1: </b>Login to Zoom using SSO (mcgill.zoom.us). Other accounts are not supported. <br>
         <strong>Step 2: </strong>Book a session. <br>
-        <strong>Step 3: </strong>Record the request ID somewhere. This is your unique identifier for the booking. <br>
-        <strong>Step 4: </strong>Check back later in the day. Search your request ID in the search box. If a pairing has been made, you will find a Zoom link. Random pairing occurs every two hours. Alternatively, check the Remembered Sessions to see status of your past requests. <br>
+        <strong>Step 3: </strong>Record the request ID somewhere. This is your unique identifier for the booking. The browser also remembers your requests by default.<br>
+        <strong>Step 4: </strong>Check back later in the day. Search your request ID in the search box. If a pairing has been made, you will find a Zoom link. Random pairing occurs every two hours. Alternatively, check the Remembered Sessions to see status of requests remembered by browser. <br>
         <strong>Step 5: </strong>Go to your virtual session! <br>
       </div>
       
@@ -56,14 +59,14 @@
       <span style="color:red" v-if="error">{{errorMessage}}</span>
       <span>{{msg}}</span>
     </p>
-    <div><img src='https://placekitten.com/300/200'/></div>
+    <div><img class="img-fluid" src='../assets/undraw_co-working_825n.svg'/></div>
     
     <br>
   <div>
   <!--
     <a href="https://zoom.us/oauth/authorize?response_type=code&client_id=CpVB04MsSzyrqxe6kYPzNw&redirect_uri=https://cowork-mcgill.herokuapp.com/%23/app">Login to Zoom</a>
   -->
-    <a href="https://zoom.us/oauth/authorize?response_type=code&client_id=_NEnLdY1ReK8ApJ_IcGLw&redirect_uri=https%3A%2F%2Fcowork-mcgill.herokuapp.com%2F%23%2Fapp" class="btn btn-lg"><i class="bi-shield-lock-fill"></i>Login to Zoom</a>
+    <a href="https://zoom.us/oauth/authorize?response_type=code&client_id=_NEnLdY1ReK8ApJ_IcGLw&redirect_uri=https%3A%2F%2Fcowork-mcgill.herokuapp.com%2F%23%2Fapp" class="btn btn-lg btn-primary"><i class="bi-shield-lock-fill"></i>Login to Zoom</a>
   </div>
   <br>
   <div>
@@ -72,7 +75,7 @@
   <br><br>
   </div>
   <h2>Book a work session by submitting a request</h2><br>
-    <div class="container" style="margin: mx-0; width: 300%; height: 100%;  flex-direction: row; justify-content: center;">
+    <div class="container col-md-10 col-xs-12 text-center" style="margin: mx-0; width: 100%; height: 100%;  flex-direction: row; justify-content: center;">
      
      <table class="table" id="rememberedSessions">
       <thead>
@@ -120,7 +123,7 @@ export default {
   name: 'midnightoil',
   data () {
     return {
-      msg: 'Welcome to Your Vue.js App',
+      msg: '',
       code: "",
       accessToken: "",
       error: false,
@@ -138,7 +141,6 @@ export default {
     
     this.vm = this;
     this.code = this.$route.query.code;
-    this.msg = this.$route.query.code;
     AXIOS.get('/times')
     .then(response=>{
       
@@ -239,7 +241,13 @@ export default {
         this.msg = "Your link is "+this.link
       }
       else{
-        this.msg = "Your request has not yet been paired. The session is on " + response.data.timeslotString
+        if(response.data.timeslotString){
+            this.msg = "Your request has not yet been paired. The session is on " + response.data.timeslotString
+        }
+        else{
+          this.msg = "This ID does not correspond to an existing request."
+        }
+        
       }
       
     })
@@ -340,7 +348,7 @@ export default {
         }
         else{
         this.error = true
-        this.msg = 'You must login to Zoom first first'
+        this.msg = 'You must login to Zoom first.'
         alert(this.msg)
         return
         }
@@ -377,6 +385,7 @@ export default {
 
 </script>
 <style>
+
 div{
   text-align: center;
   font-family: 'Quicksand', sans-serif;
@@ -386,7 +395,8 @@ h1,h2,h3{
 }
 .navbar
         {
-            border-bottom:5px solid #000;
+            border-bottom:1px solid #000;
+            box-shadow: 0 8px 16px 0 rgba(0,0,0,.2);
         }
 
 </style>
