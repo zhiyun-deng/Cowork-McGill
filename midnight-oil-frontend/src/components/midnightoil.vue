@@ -1,9 +1,9 @@
 <template>
 
   <div id="midnightoil" class="midnightoil">
-  <nav class="navbar navbar-light px-5" style="background-color: #e3f2fd;">
+  <nav class="navbar navbar-light px-5" style="background-color: #FFE8E0;">
   <!-- Navbar content -->
-  <a class="navbar-brand" href="#"><h2>Co-work McGill Random Pairing</h2></a>
+  <a class="navbar-brand" href="#"><h2>Co-work McGill Random Pairing <i class="bi bi-people-fill"></i></h2></a>
   <button type="button" class="btn btn-outline-danger ml-auto pr-auto" @click="showSessions()">
   Remembered sessions
   </button>
@@ -34,18 +34,16 @@
     <div class="modal-content">
       
       <div class="modal-body">
-          <table class="table">
+          <table class="table" v-if="cookies">
             <thead>
               <tr>
                 <th scope="col">Time</th>
                 <th scope="col">Status</th>
-                <th scope="col">ID</th>
               </tr>
             </thead>
             <tr v-for="request in storedRequests">
               <td>{{request.timeslotString}}</td>
               <td>{{request.msg}}</td>
-              <td>{{request.id}}</td>
             </tr>
         </table>
       </div>
@@ -58,13 +56,14 @@
       <span style="color:red" v-if="error">{{errorMessage}}</span>
       <span>{{msg}}</span>
     </p>
-    <div><img src='https://placekitten.com/200/300'/></div>
+    <div><img src='https://placekitten.com/300/200'/></div>
+    
     <br>
   <div>
   <!--
     <a href="https://zoom.us/oauth/authorize?response_type=code&client_id=CpVB04MsSzyrqxe6kYPzNw&redirect_uri=https://cowork-mcgill.herokuapp.com/%23/app">Login to Zoom</a>
   -->
-    <a href="https://zoom.us/oauth/authorize?response_type=code&client_id=_NEnLdY1ReK8ApJ_IcGLw&redirect_uri=https%3A%2F%2Fcowork-mcgill.herokuapp.com%2F%23%2Fapp"><i class="bi-shield-lock-fill"></i>Login to Zoom</a>
+    <a href="https://zoom.us/oauth/authorize?response_type=code&client_id=_NEnLdY1ReK8ApJ_IcGLw&redirect_uri=https%3A%2F%2Fcowork-mcgill.herokuapp.com%2F%23%2Fapp" class="btn btn-lg"><i class="bi-shield-lock-fill"></i>Login to Zoom</a>
   </div>
   <br>
   <div>
@@ -374,5 +373,9 @@ div{
 h1,h2,h3{
   font-family: 'Roboto', sans-serif;
 }
+.navbar
+        {
+            border-bottom:5px solid #000;
+        }
 
 </style>
