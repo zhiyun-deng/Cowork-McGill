@@ -4,7 +4,7 @@
   <nav class="navbar navbar-light px-5" style="background-color: #e3f2fd;">
   <!-- Navbar content -->
   <a class="navbar-brand" href="#"><h2>Co-work McGill Random Pairing</h2></a>
-  <button type="button" class="btn btn-outline-danger" @click="showSessions()">
+  <button type="button" class="btn btn-outline-danger ml-auto pr-auto" @click="showSessions()">
   Remembered sessions
   </button>
   <button type="button" class="btn btn-outline-danger" data-toggle="modal" data-target="#exampleModal" @click="superProcessCookie()">
@@ -73,9 +73,9 @@
   <br><br>
   </div>
   <h2>Book a work session by submitting a request</h2><br>
-    <div class="container" style="margin: auto; width: 75%; height: 100%; display: flex; flex-direction: row; justify-content: center;">
+    <div class="container" style="margin: mx-0; width: 300%; height: 100%;  flex-direction: row; justify-content: center;">
      
-     <table class="table">
+     <table class="table" id="rememberedSessions">
       <thead>
         <tr>
           <th scope="col">Session Date</th>
@@ -84,7 +84,8 @@
           <th scope="col">--</th>
         </tr>
       </thead>
-      <tr v-for="timeslot in times">
+      <tbody>
+      <tr v-for="timeslot in times" :key="timeslot.startDate">
         <td>{{timeslot.startDate}}</td>
         <td>{{timeslot.startTime}}</td>
         <td>{{timeslot.numRequests}}</td>
@@ -92,6 +93,7 @@
           <button v-on:click = "createRequest(timeslot)" type="button" class="btn btn-primary">Book</button>
         </td>
       </tr>
+      </tbody>
      </table>
     </div>
   </div>
@@ -140,7 +142,19 @@ export default {
     this.msg = this.$route.query.code;
     AXIOS.get('/times')
     .then(response=>{
-      this.times=response.data
+      
+      $('#rememberedSessions').DataTable().destroy();
+      this.times=response.data;
+      this.$nextTick(() => {
+      $('#rememberedSessions').DataTable({
+          
+          "paging": true,
+          "searching": false,
+    "ordering":  false
+        });
+      });
+    
+
     })
     .catch(e=>{
       this.error=true
@@ -168,7 +182,9 @@ export default {
   },
   mounted: function() {
         console.log(this.code);
-        
+        $(document).ready(function () {
+        $('#rememberedSessions').DataTable();
+});
     },
   methods:{
     showSessions: function(){
