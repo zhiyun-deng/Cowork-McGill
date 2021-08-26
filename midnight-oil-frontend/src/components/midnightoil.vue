@@ -353,10 +353,10 @@ export default {
       if (this.msg.split(" ")[0]==="Success!"){
         var existing = vm.getCookie('hello');
         if (existing){
-          this.document.cookie = 'hello='+existing+' '+this.msg.split(" ").pop();
+          document.cookie = 'hello='+existing+' '+this.msg.split(" ").pop();
         }
         else{
-          this.document.cookie = 'hello='+this.msg.split(" ").pop();
+          document.cookie = 'hello='+this.msg.split(" ").pop();
         }
       }
       console.log(response.data)
