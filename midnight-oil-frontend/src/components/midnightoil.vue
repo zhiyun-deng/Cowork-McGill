@@ -21,7 +21,7 @@
         <b>Step 1: </b>Login to Zoom using mcgill account.<br>
         <strong>Step 2: </strong>Book a session. <br>
         <strong>Step 3: </strong>Record the request ID somewhere. This is your unique identifier for the booking. <br>
-        <strong>Step 4: </strong>Check back later in the day. Search your request ID in the search box. If a pairing has been made, you will find a Zoom link. Random pairing occurs every two hours. <br>
+        <strong>Step 4: </strong>Check back later in the day. Search your request ID in the search box. If a pairing has been made, you will find a Zoom link. Random pairing occurs every two hours. Alternatively, check the Remembered Sessions to see status of your past requests. <br>
         <strong>Step 5: </strong>Go to your virtual session! <br>
       </div>
       
