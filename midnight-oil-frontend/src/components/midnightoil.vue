@@ -148,7 +148,7 @@ export default {
       $('#rememberedSessions').DataTable({
           
           "paging": true,
-          "searching": false,
+          "searching": true,
     "ordering":  false
         });
       });
@@ -335,8 +335,8 @@ export default {
     createRequest: function(timeslot){
       var vm = this;
       if (this.accessToken === '') {
-        if(document.cookie.length>6){
-          this.accessToken = document.cookie.substr(6)
+        if(this.getCookie('Token')){
+          this.accessToken = this.getCookie('Token')
         }
         else{
         this.error = true
