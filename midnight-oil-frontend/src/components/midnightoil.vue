@@ -315,6 +315,7 @@ export default {
       
     },
     superProcessCookie: function(){
+      
       this.processCookie().then(newCookieString=>{
         //this.updatedCookies = ['hel', 'jkj']
       
@@ -332,6 +333,7 @@ export default {
       })
     },
     createRequest: function(timeslot){
+      var vm = this;
       if (this.accessToken === '') {
         if(document.cookie.length>6){
           this.accessToken = document.cookie.substr(6)
@@ -348,6 +350,15 @@ export default {
      AXIOS.post('/request?date='+timeslot.startDate+'&startTime='+timeslot.startTime+'&token='+this.accessToken)
     .then(response=>{
       this.msg = response.data
+      if (this.msg.split(" ")[0]==="Success!"){
+        var existing = vm.getCookie('hello');
+        if (existing){
+          this.document.cookie = 'hello='+existing+' '+this.msg.split(" ").pop();
+        }
+        else{
+          this.document.cookie = 'hello='+this.msg.split(" ").pop();
+        }
+      }
       console.log(response.data)
     })
     .catch(e=>{
