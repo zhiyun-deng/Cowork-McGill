@@ -37,8 +37,7 @@ public class TimeslotDto {
 	}
 	@Override
 	public String toString() {
-		return "[startTime=" + startTime + ", startDate=" + startDate + ", endTime=" + endTime
-				+ ", endDate=" + endDate + "]";
+		return "Date=" + startDate + ", Time=" + startTime;
 	}
 	public int getNumRequests() {
 		return numRequests;
