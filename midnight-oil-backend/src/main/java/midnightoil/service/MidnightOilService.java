@@ -278,6 +278,7 @@ public class MidnightOilService {
 		try {
 			date = sdf.parse(lastIntHourString);
 			long lastIntHourMilis = date.getTime();
+			System.out.println("The value of 'initialized' is " + initialized);
 			if(!initialized) {
 				// create all the timeslots for five days ahead
 				for(int i = 0; i < 5*24*2; i++) {
@@ -290,6 +291,7 @@ public class MidnightOilService {
 			else {
 				Date dateToCreate = new java.sql.Date(lastIntHourMilis + TimeUnit.MINUTES.toMillis(5*24*2*30));
 				Time timeToCreate = new java.sql.Time(lastIntHourMilis + TimeUnit.MINUTES.toMillis(5*24*2*30));
+				createTimeSlot(dateToCreate,timeToCreate );
 			}
 
 		} catch (ParseException e) {
