@@ -33,12 +33,11 @@ public class MidnightOilService {
 	TimeSlotRepository timeSlotRepo;
 	
 	WebClient webClient;
-	private static final String INSTALL_LINK = "https://zoom.us/oauth/authorize?response_type=code&client_id=CpVB04MsSzyrqxe6kYPzNw&redirect_uri=https%3A%2F%2Fmidnight-oil.herokuapp.com%2F";
 	private Date windowStartDate;// start of the current booking window
 	private Time windowStartTime;
 	private Date windowEndDate;
 	private Time windowEndTime;
-	private boolean initialized = false;
+	private boolean initialized = true;
 	/* What do I hope this app accomplish? */
 	//submit a request
 	//verify student
@@ -279,20 +278,19 @@ public class MidnightOilService {
 			date = sdf.parse(lastIntHourString);
 			long lastIntHourMilis = date.getTime();
 			System.out.println("The value of 'initialized' is " + initialized);
-			if(!initialized) {
-				// create all the timeslots for five days ahead
-				for(int i = 0; i < 5*24*2; i++) {
-					Date dateToCreate = new java.sql.Date(lastIntHourMilis + TimeUnit.MINUTES.toMillis(i*30));
-					Time timeToCreate = new java.sql.Time(lastIntHourMilis + TimeUnit.MINUTES.toMillis(i*30));
-					createTimeSlot(dateToCreate,timeToCreate );
-				}
-				initialized = true;
-			}
-			else {
-				Date dateToCreate = new java.sql.Date(lastIntHourMilis + TimeUnit.MINUTES.toMillis(5*24*2*30));
-				Time timeToCreate = new java.sql.Time(lastIntHourMilis + TimeUnit.MINUTES.toMillis(5*24*2*30));
+			
+		// create all the timeslots for five days ahead
+		for(int i = 0; i < 5*24*2; i++) {
+			Date dateToCreate = new java.sql.Date(lastIntHourMilis + TimeUnit.MINUTES.toMillis(i*30));
+			Time timeToCreate = new java.sql.Time(lastIntHourMilis + TimeUnit.MINUTES.toMillis(i*30));
+			List<TimeSlot> temp = timeSlotRepo.findByStartTimeAndStartDate(timeToCreate,dateToCreate);
+			if(temp==null || temp.size()==0) {
 				createTimeSlot(dateToCreate,timeToCreate );
 			}
+			
+		}
+				
+			
 
 		} catch (ParseException e) {
 			System.out.println("error in scheduled cleanup");
