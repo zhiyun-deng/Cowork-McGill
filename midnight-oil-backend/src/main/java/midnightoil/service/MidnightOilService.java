@@ -52,6 +52,10 @@ public class MidnightOilService {
 		return toList(timeSlotRepo.findAllByOrderByStartDateAscStartTimeAsc());
 	}
 	@Transactional
+	public List<TimeSlot> getAllActiveTimeSlot() {
+		return toList(timeSlotRepo.findAllActiveTimeslots());
+	}
+	@Transactional
 	public Request createRequest(TimeSlot timeslot, String token) {
 		String start_time = "";
 		System.out.println(11);
@@ -250,10 +254,75 @@ public class MidnightOilService {
 		
 	}
 	@Transactional
+	public boolean deleteRequest(String requestId, String token) {
+		Request req = getRequest(requestId);
+		if(req==null) return false;
+		String[] temp = req.getLink().split("/");
+		String meetingID = temp[temp.length-1];
+		System.out.println(meetingID);
+		try {
+			//delete meeting from Zoom
+			MeetingResponse response = webClient.delete()
+		            .uri("https://api.zoom.us/v2/meetings/"+meetingID)
+		            .header("Content-Type","application/json")
+		            .header("Authorization", "Bearer " + token)
+		            .retrieve()
+		            .bodyToMono(MeetingResponse.class)
+		            .block();
+			System.out.println(response);
+			Pairing pairing = req.getPairing();
+			Set<TimeSlot> time = req.getTimeSlot();
+			//request unset pairing
+			if(pairing!=null) {
+				Set<Request> requests = pairing.getRequest();
+				for (Request individualReq:requests) {
+					individualReq.setPaired(false);
+					individualReq.setPairing(null);
+					requestRepo.save(individualReq);
+				}
+				for (TimeSlot t:time) {
+					t.setNumPairs(t.getNumPairs()-1);
+					Set<Pairing> pairings = t.getPairing();
+					pairings.remove(pairing);
+					t.setPairing(pairings);
+					
+					
+				}
+				timeSlotRepo.saveAll(time);
+				pairingRepo.delete(pairing);
+			}
+			
+			
+			
+			
+			for (TimeSlot t:time) {
+				Set<Request> timeRequests = t.getRequest();
+				timeRequests.remove(req);
+				t.setRequest(timeRequests);
+				t.setNumRequests(t.getNumRequests()-1);
+				
+			}
+			timeSlotRepo.saveAll(time);
+			requestRepo.delete(req);
+			
+			
+		
+			
+			
+			
+			return true;
+		}
+		catch(Exception e) {
+			e.printStackTrace();
+			return false;
+		}
+		
+	}
+	@Transactional
 	public void cleanup() {
 		Long current = System.currentTimeMillis();
-		Date cleanupStartDate = new java.sql.Date(current - TimeUnit.HOURS.toMillis(1));
-		Time cleanupStartTime = new java.sql.Time(current - TimeUnit.HOURS.toMillis(1));
+		Date cleanupStartDate = new java.sql.Date(current - TimeUnit.HOURS.toMillis(1)/2);
+		Time cleanupStartTime = new java.sql.Time(current - TimeUnit.HOURS.toMillis(1)/2);
 		List<TimeSlot> outdated = timeSlotRepo.findByStartDateEqualsAndStartTimeBeforeOrStartDateBefore(cleanupStartDate, cleanupStartTime,cleanupStartDate); 
 		for(TimeSlot t :outdated) {
 			pairingRepo.deleteAll(t.getPairing());

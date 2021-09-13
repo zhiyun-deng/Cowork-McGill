@@ -38,7 +38,7 @@ public class Request{
    
    
    private Set<TimeSlot> timeSlot = new HashSet<>();
-   @ManyToMany( cascade = { CascadeType.ALL })
+   @ManyToMany
    public Set<TimeSlot> getTimeSlot() {
       return this.timeSlot;
    }

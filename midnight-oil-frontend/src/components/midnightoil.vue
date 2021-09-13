@@ -23,9 +23,10 @@
       <div class="modal-body">
         <b>Step 1: </b>Login to Zoom using SSO (mcgill.zoom.us). Other accounts are not supported. <br>
         <strong>Step 2: </strong>Book a session. <br>
-        <strong>Step 3: </strong>Record the request ID somewhere. This is your unique identifier for the booking. The browser also remembers your requests by default.<br>
-        <strong>Step 4: </strong>Check back later in the day. Search your request ID in the search box. If a pairing has been made, you will find a Zoom link. Random pairing occurs every two hours. Alternatively, check the Remembered Sessions to see status of requests remembered by browser. <br>
-        <strong>Step 5: </strong>Go to your virtual session! <br>
+        <strong>Step 3: </strong>The browser now remembers your requests by default. If you would like to access the link from some other browser, record the request ID somewhere. This is your unique identifier for the booking. <br>
+        <strong>Step 4: </strong>Check back later in the day. Click on Remembered Sessions to see status of requests remembered by browser. If a pairing has been made, you will find a Zoom link. Random pairing occurs every two hours. Alternatively, search your request ID in the search box.  <br>
+        <strong>Step 5: </strong>Go to your virtual session. Start the session by telling each other what you will work on today.<br>
+        <strong>Step 6: </strong>Get to work!<br>
       </div>
       
     </div>
@@ -62,12 +63,13 @@
     <div><img class="img-fluid" src='../assets/undraw_co-working_825n.svg'/></div>
     
     <br>
-  <div>
+  <div v-if="accessToken">
   <!--
     <a href="https://zoom.us/oauth/authorize?response_type=code&client_id=CpVB04MsSzyrqxe6kYPzNw&redirect_uri=https://cowork-mcgill.herokuapp.com/%23/app">Login to Zoom</a>
   -->
     <a href="https://zoom.us/oauth/authorize?response_type=code&client_id=_NEnLdY1ReK8ApJ_IcGLw&redirect_uri=https%3A%2F%2Fcowork-mcgill.herokuapp.com%2F%23%2Fapp" class="btn btn-lg btn-primary"><i class="bi-shield-lock-fill"></i>Login to Zoom</a>
   </div>
+  
   <br>
   <div>
     Search Request Status by Request ID: <input type="text" v-model="inputReqID" style="display: inline;">
@@ -170,8 +172,10 @@ export default {
         this.accessToken = response.data
         if(this.accessToken){
           document.cookie = 'Token=' + response.data
+          alert("You are now logged into Zoom. ")
         }
         console.log(this.accessToken)
+        
 
       })
       .catch(error => {
@@ -249,6 +253,7 @@ export default {
         }
         
       }
+      $('html,body').scrollTop(0);
       
     })
     .catch(e=>{
@@ -358,6 +363,7 @@ export default {
      AXIOS.post('/request?date='+timeslot.startDate+'&startTime='+timeslot.startTime+'&token='+this.accessToken)
     .then(response=>{
       this.msg = response.data
+      alert(this.msg)
       if (this.msg.split(" ")[0]==="Success!"){
         var existing = vm.getCookie('hello');
         if (existing){

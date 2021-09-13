@@ -1,6 +1,7 @@
 package midnightoil.controller;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.CrossOrigin;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -24,6 +25,16 @@ import java.util.stream.Collectors;
 public class MidnightOilRestController {
 	@Autowired
 	private MidnightOilService service;
+	@DeleteMapping(value = { "/delete", "/delete/" })
+	public String deleteRequest(@RequestParam String id, @RequestParam String token) {
+		boolean success = service.deleteRequest(id, token);
+		if(success) {
+			return "Request successfully deleted.";
+		}
+		else{
+			return "Unable to delete request.";
+		}
+	}
 	@PostMapping(value = { "/request", "/request/" })
 	public String createRequest(@RequestParam String date, @RequestParam String startTime, @RequestParam String token) throws IllegalArgumentException {
 		Date startDateObj = Date.valueOf(date);
@@ -52,6 +63,14 @@ public class MidnightOilRestController {
 	public List<TimeslotDto> getAllTimeSlots() {
 		List<TimeslotDto> res = new ArrayList<TimeslotDto>();
 		for(TimeSlot t : service.getAllTimeSlot()) {
+			res.add(convertToDto(t));
+		}
+		return res;
+	}
+	@GetMapping(value = { "/active", "/active/" })
+	public List<TimeslotDto> getAllActiveTimeslot() {
+		List<TimeslotDto> res = new ArrayList<TimeslotDto>();
+		for(TimeSlot t : service.getAllActiveTimeSlot()) {
 			res.add(convertToDto(t));
 		}
 		return res;
