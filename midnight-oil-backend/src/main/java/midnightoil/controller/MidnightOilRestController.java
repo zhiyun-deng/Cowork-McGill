@@ -29,7 +29,7 @@ public class MidnightOilRestController {
 	public String deleteRequest(@RequestParam String id, @RequestParam String token) {
 		boolean success = service.deleteRequest(id, token);
 		if(success) {
-			return "Request successfully deleted.";
+			return "Successfully deleted request.";
 		}
 		else{
 			return "Unable to delete request.";

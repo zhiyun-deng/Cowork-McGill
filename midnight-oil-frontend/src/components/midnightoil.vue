@@ -22,7 +22,7 @@
       
       <div class="modal-body">
         <b>Step 1: </b>Login to Zoom using SSO (mcgill.zoom.us). Other accounts are not supported. <br>
-        <strong>Step 2: </strong>Book a session. <br>
+        <strong>Step 2: </strong>Book a session. Avoid booking multiple sessions if you cannot go to all of them.<br>
         <strong>Step 3: </strong>The browser now remembers your requests by default. If you would like to access the link from some other browser, record the request ID somewhere. This is your unique identifier for the booking. <br>
         <strong>Step 4: </strong>Check back later in the day. Click on Remembered Sessions to see status of requests remembered by browser. If a pairing has been made, you will find a Zoom link. Random pairing occurs every two hours. Alternatively, search your request ID in the search box.  <br>
         <strong>Step 5: </strong>Go to your virtual session. Start the session by telling each other what you will work on today.<br>
@@ -43,11 +43,15 @@
               <tr>
                 <th scope="col">Time</th>
                 <th scope="col">Status</th>
+                <th scope="col">--</th>
               </tr>
             </thead>
             <tr v-for="request in storedRequests">
               <td>{{request.timeslotString}}</td>
               <td>{{request.msg}}</td>
+              <td>
+                <button v-on:click = "deleteRequest(request)" type="button" class="btn btn-danger">Delete</button>
+              </td>
             </tr>
         </table>
       </div>
@@ -344,6 +348,36 @@ export default {
         console.log('cookie changed')
       }
       })
+    },
+    deleteRequest: function(req){
+      var vm = this;
+      if (this.accessToken === '') {
+        if(this.getCookie('Token')){
+          this.accessToken = this.getCookie('Token')
+        }
+        else{
+        this.error = true
+        this.msg = 'You must login to Zoom first.'
+        alert(this.msg)
+        return
+        }
+
+      }
+      
+     AXIOS.delete('/delete?id='+req.id+'&token='+this.accessToken)
+    .then(response=>{
+      this.msg = response.data
+      alert(this.msg)
+      if (this.msg.split(" ")[0]==="Successfully"){
+        vm.processCookie();
+      }
+      console.log(response.data)
+    })
+    .catch(e=>{
+      this.error=true
+      console.log(e)
+    })
+
     },
     createRequest: function(timeslot){
       var vm = this;
