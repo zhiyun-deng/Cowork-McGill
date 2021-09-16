@@ -67,7 +67,7 @@
     <div><img class="img-fluid" src='../assets/undraw_co-working_825n.svg'/></div>
     
     <br>
-  <div v-if="accessToken">
+  <div>
   <!--
     <a href="https://zoom.us/oauth/authorize?response_type=code&client_id=CpVB04MsSzyrqxe6kYPzNw&redirect_uri=https://cowork-mcgill.herokuapp.com/%23/app">Login to Zoom</a>
   -->
@@ -114,7 +114,7 @@ import axios from 'axios'
 var config = require('../../config')
 
 var frontendUrl = 'https://' + config.build.host + ':' + config.build.port
-var backendUrl = 'https://' + config.build.backendHost + ':' + config.build.backendPort
+var backendUrl = 'http://' + config.dev.backendHost + ':' + config.dev.backendPort
 
 var AXIOS = axios.create({
   baseURL: backendUrl,
@@ -275,27 +275,39 @@ export default {
       // read cookies
       var temp = this.getCookie('hello')
       console.log(temp);
+      this.updatedCookies.splice(0);
+      this.storedRequests.splice(0);
+      console.log(this.updatedCookies)
       if(!temp){
         return;
       }
       this.cookies = temp.split(' ');
-      this.updatedCookies = [];
-      this.storedRequests = [];
+      
       var newCookieString = "";
       const promises = [];
 
       // get request status
-      for (var reqID of this.cookies){
+      console.log(this.cookies);
+      for (let i=0;i<this.cookies.length;i++){
         var msg = '';
       var link = '';
       var timeslotString='';
       var res='';
+      
+      var vm = this;
+      //console.log(reqID)
+      AXIOS.get('/getrequest?id='+vm.cookies[i])
+    .then(response=>{
+      var reqID = vm.cookies[i];
+      
+      console.log('****'+reqID)
+      console.log(response.data);
       if (reqID === '') {
         return '';
       }
-      AXIOS.get('/getrequest?id='+reqID)
-    .then(response=>{
-      console.log(response.data);
+      if(!response.data){
+        return 'wonkie';
+      }
       link = response.data.zoomLink;
       timeslotString = response.data.timeslotString;
       if(link){
@@ -306,8 +318,10 @@ export default {
         msg = "Not paired";
         console.log(msg);
       }
-      var request = new RequestDto(msg,timeslotString);
+      var request = new RequestDto(msg,timeslotString,reqID);
       this.storedRequests.push(request);
+      //updated cookies are nto empty for
+      console.log('before:'+this.updatedCookies);
       this.updatedCookies.push(reqID);
       console.log(this.updatedCookies);
       res='x';
@@ -322,7 +336,7 @@ export default {
     
     
         
-        
+        console.log("this is reached")
         console.log(this.updatedCookies);
         //if cookie is valid, add to string
         
@@ -369,9 +383,12 @@ export default {
       this.msg = response.data
       alert(this.msg)
       if (this.msg.split(" ")[0]==="Successfully"){
-        vm.processCookie();
+        
+        console.log('successfully deleted if statement')
+        vm.superProcessCookie();
       }
       console.log(response.data)
+      console.log('req.id '+req.id)
     })
     .catch(e=>{
       this.error=true

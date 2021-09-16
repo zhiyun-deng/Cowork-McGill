@@ -75,10 +75,12 @@ public class MidnightOilRestController {
 		}
 		return res;
 	}
+	/*
+	 * This endpoint would require user read permissions, which might be too much. 
 	@GetMapping(value = { "/verify", "/verify/" })
 	public boolean testVerify(@RequestParam String token) {
 		return service.verifyToken(token);
-	}
+	}*/
 	@PostMapping(value = { "/schedule", "/schedule/" })
 	public String testVerify(@RequestParam String token, @RequestParam String start_time, @RequestParam Integer duration) {
 		return service.scheduleMeeting(token, start_time, duration);
