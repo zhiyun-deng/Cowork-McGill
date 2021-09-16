@@ -24,7 +24,7 @@
         <b>Step 1: </b>Login to Zoom using SSO (mcgill.zoom.us). Other accounts are not supported. <br>
         <strong>Step 2: </strong>Book a session. Avoid booking multiple sessions if you cannot go to all of them.<br>
         <strong>Step 3: </strong>The browser now remembers your requests by default. If you would like to access the link from some other browser, record the request ID somewhere. This is your unique identifier for the booking. <br>
-        <strong>Step 4: </strong>Check back later in the day. Click on Remembered Sessions to see status of requests remembered by browser. If a pairing has been made, you will find a Zoom link. Random pairing occurs every two hours. Alternatively, search your request ID in the search box.  <br>
+        <strong>Step 4: </strong>Check back later in the day. Click on Remembered Sessions to see status of requests remembered by browser. If a pairing has been made, you will find a Zoom link. Random pairing occurs every minute. Alternatively, search your request ID in the search box.  <br>
         <strong>Step 5: </strong>Go to your virtual session. Start the session by telling each other what you will work on today.<br>
         <strong>Step 6: </strong>Get to work!<br>
       </div>
