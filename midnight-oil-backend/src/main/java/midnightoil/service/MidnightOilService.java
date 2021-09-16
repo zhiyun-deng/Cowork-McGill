@@ -262,8 +262,12 @@ public class MidnightOilService {
 		System.out.println(meetingID);
 		try {
 			//delete meeting from Zoom
+			WebClient webClient = WebClient.create("https://api.zoom.us");
 			MeetingResponse response = webClient.delete()
-		            .uri("https://api.zoom.us/v2/meetings/"+meetingID)
+		            
+		            .uri(uriBuilder -> uriBuilder.path("/v2/meetings/"+meetingID)
+		                    .queryParam("schedule_for_reminder", "false")
+		                    .build())
 		            .header("Content-Type","application/json")
 		            .header("Authorization", "Bearer " + token)
 		            .retrieve()

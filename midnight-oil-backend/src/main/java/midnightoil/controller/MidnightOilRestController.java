@@ -32,7 +32,7 @@ public class MidnightOilRestController {
 			return "Successfully deleted request.";
 		}
 		else{
-			return "Unable to delete request.";
+			return "Unable to delete request. If this issue persists, try logging into Zoom again.";
 		}
 	}
 	@PostMapping(value = { "/request", "/request/" })

@@ -114,7 +114,7 @@ import axios from 'axios'
 var config = require('../../config')
 
 var frontendUrl = 'https://' + config.build.host + ':' + config.build.port
-var backendUrl = 'http://' + config.dev.backendHost + ':' + config.dev.backendPort
+var backendUrl = 'https://' + config.build.backendHost + ':' + config.build.backendPort
 
 var AXIOS = axios.create({
   baseURL: backendUrl,
@@ -296,7 +296,7 @@ export default {
       
       var vm = this;
       //console.log(reqID)
-      AXIOS.get('/getrequest?id='+vm.cookies[i])
+      await AXIOS.get('/getrequest?id='+vm.cookies[i])
     .then(response=>{
       var reqID = vm.cookies[i];
       
@@ -341,6 +341,7 @@ export default {
         //if cookie is valid, add to string
         
       }
+      console.log(newCookieString)
       return newCookieString;
       
       
