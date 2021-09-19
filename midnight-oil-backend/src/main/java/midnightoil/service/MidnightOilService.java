@@ -205,7 +205,6 @@ public class MidnightOilService {
 			return null;
 		}
 		
-	}
 	@Transactional
 	public void pairAll() {
 		//for every timeslot, pair all requests
@@ -335,9 +334,9 @@ public class MidnightOilService {
 				request.setTimeSlot(null);
 			}
 			t.setRequest(null);
-			if(t.getRequest()!=null) {
-				requestRepo.deleteAll(t.getRequest());
-			}
+			
+			requestRepo.deleteAll(outdatedRequests);
+			
 			timeSlotRepo.delete(t);
 		}
 				
