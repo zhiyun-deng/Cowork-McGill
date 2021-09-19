@@ -215,7 +215,7 @@ public class MidnightOilService {
 		windowEndDate = new java.sql.Date(current+TimeUnit.DAYS.toMillis(5)); //the system will look at all timeslots between now 
 		windowEndTime = new java.sql.Time(current+TimeUnit.DAYS.toMillis(5)); // and five days from now
 		// use spring framework's default methods to find the desired timeslots
-		List<TimeSlot> times = timeSlotRepo.findByStartDateAfterOrStartTimeAfter(windowStartDate, windowStartTime);
+		List<TimeSlot> times = toList(timeSlotRepo.findAll());
 		List<Request> unpairedRequests = new ArrayList<Request>();
 		for (TimeSlot t : times) {
 			unpairedRequests.clear();
